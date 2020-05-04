@@ -90,7 +90,7 @@ def decompress(FILE_IN):
 
             elif byte_raw[-2] == byte_raw[-1] and flag:
 
-                if x == byte_raw[-4] and x == byte_raw[-3] and x == byte_raw[-2] and x == byte_raw[-1]:   #???
+                if x == byte_raw[-4] and x == byte_raw[-3] and x == byte_raw[-2] and x == byte_raw[-1]:
                     byte_raw.append(x)
                     flag = True
 
