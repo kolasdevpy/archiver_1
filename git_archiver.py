@@ -88,12 +88,11 @@ def decompress(FILE_IN):
             elif i == 4:   
                 byte_raw.append(x)
 
-            # после одного выполнения нужно один раз пропустить выполнение этого условия
             elif byte_raw[-2] == byte_raw[-1] and flag:
 
                 if x == byte_raw[-4] and x == byte_raw[-3] and x == byte_raw[-2] and x == byte_raw[-1]:   #???
                     byte_raw.append(x)
-                    flag = True                  # если файл из нулей (или много по 255)
+                    flag = True
 
                 elif x == 0:
                     flag = False
@@ -101,7 +100,7 @@ def decompress(FILE_IN):
                 else:
                     for _ in range(x):
                         byte_raw.append(byte_raw[-1])
-                        flag = False                            # сдвинуть влево???
+                    flag = False
                     
             else:
                 byte_raw.append(x)
