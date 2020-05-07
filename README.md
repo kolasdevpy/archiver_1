@@ -1,5 +1,5 @@
 # archiver
-It's a small home project for learning of python and GitHub services.\\
+It's a small home project for learning of python and GitHub services.\
 This project including writing simple algoritm and Its improvement.
 
 ________
@@ -13,7 +13,7 @@ For example:
 - 3, 3 => 3, 3, 0 - this is a flaw in the algorithm
 
 # decompression
-The decompression logic is to find two identical consecutive bytes.\\
+The decompression logic is to find two identical consecutive bytes.\
 The next byte is already a counter and lets you know how many of these bytes you still need to add to the unpacked sequences.
 
 For example:
