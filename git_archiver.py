@@ -3,8 +3,9 @@
 
 
 
-import sys
 from datetime import datetime
+import os
+import sys
 import time
 
 
@@ -12,20 +13,48 @@ import time
 
 FUNC_NAME = sys.argv[1]
 FILE_IN = sys.argv[2]
+CACHE = 1000000        # max bytes in cache array   (must have: CACHE > 10)
 
 
-def compress(FILE_IN):
+def del_3_el(array):
+    '''delete 1st, 2nd and 3th elements in first iteration => extension'''
+    del array[0]
+    del array[0]
+    del array[0]
+    return array
+
+def add_to_file(array, FILE_OUT):
+    '''add cache array to file out'''
+    j = 0
+    with open(FILE_OUT, 'ab') as f_arch:
+        length = len(array) - 5
+        while j != length:
+            el = array[j]
+            el = el.to_bytes(1, 'big')
+            f_arch.write(el)
+            j += 1
+    return array
+
+
+def compress(FILE_IN, CACHE):
     '''compress file into array'''
+    FILE_OUT = (FILE_IN + '-arch')
     byte_raw = [75, 79, 76]
-    #BYTE_RAW_IN = []
+    print(f'{FILE_IN} compress into {FILE_OUT}')
     with open(FILE_IN, 'rb') as f:
         flag = True
         i = 0
         while f.read(1):
             f.seek(i)
             x = ord(f.read(1))
-            #BYTE_RAW_IN.append(x)
- 
+
+            if i == CACHE:
+                #print(f'{i}  rec  ', datetime.now() - start_time)
+                add_to_file(byte_raw, FILE_OUT)
+                byte_raw = byte_raw[-5:]
+                #print(f'{i}  end  ', datetime.now() - start_time)
+                CACHE += CACHE
+
             if i == 0:   # 1st byte invariably record into byte_raw always
                 byte_raw.append(x)
 
@@ -47,143 +76,110 @@ def compress(FILE_IN):
             else:
                 byte_raw.append(x)
                 flag = True
-
             i +=1
 
+    j = 0
+    with open(FILE_OUT, 'ab') as f_arch:
+        length = len(byte_raw)
+        while j != length:
+            el = byte_raw[j]
+            el = el.to_bytes(1, 'big')
+            f_arch.write(el)
+            j += 1
 
-
-
-    print('---------------------------------------')
-    # print(f'{BYTE_RAW_IN[:100]} <-----------> {BYTE_RAW_IN[-100:]}')
-    # print('---------------------------------------')
-    # print(f'{byte_raw[:100]} <-----------> {byte_raw[-100:]}')
-    # print('---------------------------------------')
-    # print('BYTE_IN  = ' + str(len(BYTE_RAW_IN)))
-    print('BYTE_OUT = ' + str(len(byte_raw)))
-    # print('Compress = ' + str(len(byte_raw) / len(BYTE_RAW_IN)))
-    print('======================================================================================')
-
+    size = os.path.getsize(FILE_OUT)
+    print(f'COMPRESSED   IN {i}  ==>  OUT {size}      ratio OUT/IN =  {size/i}')
     return byte_raw
 
 
-
-
-def decompress(FILE_IN):
+def decompress(FILE_IN, CACHE):
     '''decompress file into array'''
+    time = datetime.now().strftime('%H.%M.%S_')
+    FILE_OUT = (time +'_' + FILE_IN.split('-')[0])
+    print(f'{FILE_IN} decompress into {FILE_OUT}')
     with open(FILE_IN, 'rb') as f:
         byte_raw = []
-        #BYTE_RAW_IN = []
         i = 0
+        flag_for_first_array = True
         flag = True
-        
         while f.read(1):
             f.seek(i)
             x = ord(f.read(1))
-            #BYTE_RAW_IN.append(x)
-            
-            if i == 0 or i == 1 or i == 2:       # 1, 2, 3 elements - file extension (type)
-                byte_raw.append(x)
-            elif i == 3:          # 1st and 2nd bytes invariably record into byte_raw always
-                byte_raw.append(x)
-            elif i == 4:   
-                byte_raw.append(x)
 
+            if i == CACHE:
+                if flag_for_first_array:
+                    del_3_el(byte_raw)
+                    flag_for_first_array = False
+                #print(f'{i}  rec  ', datetime.now() - start_time)
+                add_to_file(byte_raw, FILE_OUT)
+                byte_raw = byte_raw[-5:]
+                #print(f'{i}  end  ', datetime.now() - start_time)
+                CACHE += CACHE
+
+            if i < 5:
+                if i == 0 or i == 1 or i == 2:       # 1, 2, 3 elements - file extension (type)
+                    byte_raw.append(x)
+                elif i == 3:          # 1st and 2nd bytes invariably record into byte_raw always
+                    byte_raw.append(x)
+                elif i == 4:   
+                    byte_raw.append(x)
+
+            # after one fulfillment of this condition it is necessary to skip its fulfillment once
             elif byte_raw[-2] == byte_raw[-1] and flag:
 
                 if x == byte_raw[-4] and x == byte_raw[-3] and x == byte_raw[-2] and x == byte_raw[-1]:
                     byte_raw.append(x)
-                    flag = True
+                    flag = True                  # if more than 512 identical bytes in a row
 
                 elif x == 0:
                     flag = False
-                    
+
                 else:
                     for _ in range(x):
                         byte_raw.append(byte_raw[-1])
                     flag = False
-                    
             else:
                 byte_raw.append(x)
                 flag = True
-                
             i += 1
-        print('del begin', datetime.now() - start_time)
-        del byte_raw[0]
-        print('del 0', datetime.now() - start_time)
-        del byte_raw[0]
-        print('del 1', datetime.now() - start_time)
-        del byte_raw[0]
-        print('del 2', datetime.now() - start_time)
 
-    print('---------------------------------------')
-    # print(f'{BYTE_RAW_IN[:100]} <-----------> {BYTE_RAW_IN[-100:]}')
-    # print('---------------------------------------')
-    # print(f'{byte_raw[:100]} <-----------> {byte_raw[-100:]}')
-    # print('---------------------------------------')
-    # print('BYTE_IN  = ' + str(len(BYTE_RAW_IN)))
-    print('BYTE_OUT = ' + str(len(byte_raw)))
-    # print('Deompress = ' + str(len(byte_raw) / len(BYTE_RAW_IN)))
-    print('======================================================================================')
+    j = 0
+    with open(FILE_OUT, 'ab') as f_arch:
+        if flag_for_first_array:
+            del_3_el(byte_raw)
+        length = len(byte_raw)
+        while j != length:
+            el = byte_raw[j]
+            el = el.to_bytes(1, 'big')
+            f_arch.write(el)
+            j += 1
 
+    size = os.path.getsize(FILE_OUT)
+    print(f'DECOMPRESSED   IN {i}  ==>  OUT {size}      ratio OUT/IN =  {size/i}')
     return byte_raw
 
 
 
 
-def write_into_archived_file(array, FILE_IN):
-    '''Write array into file'''
-    with open(FILE_IN + '-arch', 'wb') as f:
-        print('write', datetime.now() - start_time)
-        i = 0
-        while i != len(array):
-            for el in array:
-                el = el.to_bytes(1, 'big')
-                f.write(el)
-                i += 1
-    f.close()
-    return FILE_IN # преобразовать в новый
-
-
-
-
-
-
-def write_into_unarchived_file(array, FILE_IN):
-    '''Write array into file'''
-    FILE_OUT = 'new_' + FILE_IN.split('-')[0]
-    with open(FILE_OUT, 'wb') as f:
-        print('write', datetime.now() - start_time)
-        i = 0
-        while i != len(array):
-            for el in array:
-                el = el.to_bytes(1, 'big')
-                f.write(el)
-                i += 1
-    f.close()
-    return FILE_OUT
-
-
-
-# python3 archiver.py compress 'file_name'
-# python3 archiver.py decompress 'file_name'
+# python3 archiver.py compress file
+# python3 archiver.py decompress file-arch
 
 if __name__ == "__main__":
-    print('\n\n\n')
+    print('======================================================================================\n')
     if sys.argv[1] == 'compress':
         start_time = datetime.now()
-        print(f'{FILE_IN} compression in progress')
-        array = compress(FILE_IN)
+        print(datetime.now().strftime('%H.%M.%S_%f'))
+        compress(FILE_IN, CACHE)
         print(datetime.now() - start_time)
-        write_into_archived_file(array, FILE_IN)
-        print(datetime.now() - start_time)
+        print('======================================================================================')
+
 
     elif sys.argv[1] == 'decompress':
         start_time = datetime.now()
-        print(f'{FILE_IN} file decompression in progress')
-        array = decompress(FILE_IN)
+        print(datetime.now().strftime('%H.%M.%S_%f'))
+        decompress(FILE_IN, CACHE)
         print(datetime.now() - start_time)
-        write_into_unarchived_file(array, FILE_IN)
-        print(datetime.now() - start_time)
+        print('======================================================================================')
 
     else:
         print('Please, input correctly your instruction')
