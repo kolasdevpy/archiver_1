@@ -14,7 +14,8 @@ For example:
 
 # decompression
 The decompression logic is to find two identical consecutive bytes.\
-The next byte is already a counter and lets you know how many of these bytes\ you still need to add to the unpacked sequences.
+The next byte is already a counter and lets you know how many of these bytes\
+you still need to add to the unpacked sequences.
 
 For example:
 - 3, 3, 0 => 3, 3
