@@ -14,7 +14,10 @@ import os
 FUNC_NAME = sys.argv[1]
 DIR = sys.argv[2]
 ALL_COMPRESSIONS = []
+<<<<<<< HEAD
 CACHE = 100
+=======
+>>>>>>> f9e5395d176d1d9989a3ab720f6e4198aeb9009a
 
 
 
@@ -164,13 +167,21 @@ def sizes(FILE_IN, FILE_OUT_2, FILE_OUT, ALL_COMPRESSIONS) :
         ALL_COMPRESSIONS.append(compression)
     else:
         broken = f'{FILE_IN} {SIZE_IN} != {SIZE_OUT2}'
+<<<<<<< HEAD
         print(f'{broken} +++++  BROKEN  +++++')
+=======
+        print(f'{broken} ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+>>>>>>> f9e5395d176d1d9989a3ab720f6e4198aeb9009a
         with open('_log.txt', 'a') as f_log:
             f_log.writelines(broken + '\n')
     return ALL_COMPRESSIONS
 
 
+<<<<<<< HEAD
 def stack(DIR, CACHE):
+=======
+def stack(DIR):
+>>>>>>> f9e5395d176d1d9989a3ab720f6e4198aeb9009a
     i = 0
     for top, dirs, files in os.walk(DIR):
         for nm in files:
@@ -180,12 +191,23 @@ def stack(DIR, CACHE):
             else:
                 if i % 10 == 0:
                     print(i)
+<<<<<<< HEAD
                     # time.sleep(1)        # if overheats ;)
                 FILE_IN = f'{top}/{nm}'
                 print(f'{FILE_IN}')
                 FILE_OUT = (FILE_IN + '-arch')
                 new = datetime.now().strftime('%Y-%m-%d_%H.%M.%S.%f')
                 FILE_OUT_2 = f'{top}/{new}{nm}'
+=======
+                    time.sleep(1)
+                FILE_IN = f'{top}/{nm}'
+                print(f'{top}/{nm}')
+                FILE_OUT = (FILE_IN + '-arch')
+                new = datetime.now().strftime('%Y-%m-%d_%H.%M.%S.%f')
+                FILE_OUT_2 = f'{top}/{new}{nm}'
+
+                CACHE = 100
+>>>>>>> f9e5395d176d1d9989a3ab720f6e4198aeb9009a
                 compress(FILE_IN, CACHE, FILE_OUT)
                 decompress(FILE_OUT, CACHE, FILE_OUT_2)
                 sizes(FILE_IN, FILE_OUT_2, FILE_OUT, ALL_COMPRESSIONS)
@@ -199,7 +221,11 @@ def stack(DIR, CACHE):
 
 if __name__ == "__main__":
     if sys.argv[1] == 'run':
+<<<<<<< HEAD
         stack(DIR, CACHE)
+=======
+        stack(DIR)
+>>>>>>> f9e5395d176d1d9989a3ab720f6e4198aeb9009a
         print(sum(ALL_COMPRESSIONS)/len(ALL_COMPRESSIONS))
     else:
         print('Please, input correctly your instruction')
