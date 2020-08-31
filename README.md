@@ -1,5 +1,5 @@
 # archiver
-It's a small home project for learning of python and GitHub services.\
+It's a small pet project for learning of python and GitHub services.\
 This project including writing simple algoritm and Its improvement.
 
 ________
